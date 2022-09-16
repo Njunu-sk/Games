@@ -8,7 +8,7 @@ GRID_WIDTH = Window.width / GRID_SIZE
 GRID_HEIGHT = Window.height / GRID_SIZE
 
 class Snake
-    attr_writer :direction
+  attr_writer :direction
     def initialize
       @positions = [[2,0],[2,1],[2,2],[2,3]]
       @direction = "down"
@@ -16,61 +16,64 @@ class Snake
     end
 
     def draw
-        @positions.each do |position|
-            Square.new(x: position[0]*GRID_SIZE, y: position[1]*GRID_SIZE, size: GRID_SIZE - 1, color: "white")
-        end
+      @positions.each do |position|
+        Square.new(x: position[0] * GRID_SIZE, y: position[1] * GRID_SIZE, size: GRID_SIZE - 1, color: "white")
+      end
     end
 
-    def move 
-        if !@growing
-            @positions.shift
-        end
+    def move
+      if !@growing
+        @positions.shift
+      end
 
-       case @direction
-       when "down"
-         @positions.push(new_coordinates(head[0], head[1] +1))
-       when "up"
-        @positions.push(new_coordinates(head[0], head[1] -1))
-       when "left"
-        @positions.push(new_coordinates(head[0] - 1, head[1]))
-       when "right"
-        @positions.push(new_coordinates(head[0] + 1, head[1]))
-       end
-       @growing = false
+      case @direction
+
+        when "down"
+            @positions.push(new_coordinates(head[0], head[1] +1))
+        when "up"
+            @positions.push(new_coordinates(head[0], head[1] -1))
+        when "left"
+            @positions.push(new_coordinates(head[0] - 1, head[1]))
+        when "right"
+            @positions.push(new_coordinates(head[0] + 1, head[1]))
+      end
+        @growing = false
     end
-    
+
     def can_change_direction_to?(new_direction)
        case @direction
-       when "up" then new_direction != "down"
-       when "down" then new_direction != "up"
-       when "left" then new_direction != "right"
-       when "right" then new_direction != "left"
+
+         when "up" then new_direction != "down"
+         when "down" then new_direction != "up"
+         when "left" then new_direction != "right"
+         when "right" then new_direction != "left"
        end
     end
 
     def x
-        head[0]
+      head[0]
     end
 
     def y
-        head[1]
+      head[1]
     end
 
     def grow
-        @growing = true
+      @growing = true
     end
 
     def hit_itself?
-        @positions.uniq.length != @positions.length
+      @positions.uniq.length != @positions.length
     end
 
     private
+
     def new_coordinates(x, y)
-        [x % GRID_WIDTH, y % GRID_HEIGHT]
+      [x % GRID_WIDTH, y % GRID_HEIGHT]
     end
 
     def head
-        @positions.last
+      @positions.last
     end
 end
 
@@ -83,37 +86,39 @@ class Game
     end
 
     def draw
-        unless finished?
-            Square.new(x: @ball_x * GRID_SIZE, y: @ball_y * GRID_SIZE, size: GRID_SIZE, color: "blue")
-        end
-        Text.new(text_message, color: "green", x: 10, y: 10, size: 25)
+      unless finished?
+        Square.new(x: @ball_x * GRID_SIZE, y: @ball_y * GRID_SIZE, size: GRID_SIZE, color: "blue")
+      end
+
+      Text.new(text_message, color: "green", x: 10, y: 10, size: 25)
     end
 
     def snake_hit_ball?(x, y)
-        @ball_x == x && @ball_y == y
+      @ball_x == x && @ball_y == y
     end
 
     def record_hit
-        @score += 1
-        @ball_x = rand(GRID_WIDTH)
-        @ball_y = rand(GRID_HEIGHT)
+      @score += 1
+      @ball_x = rand(GRID_WIDTH)
+      @ball_y = rand(GRID_HEIGHT)
     end
 
     def finish
-        @finished = true
+      @finished = true
     end
 
     def finished?
-        @finished
+      @finished
     end
 
     private
+
     def text_message
-       if finished?
+      if finished?
         "Game Over, your score was : #{@score}. Press R to continue"
-       else
-         "Score: #{@score}"
-       end
+      else
+        "Score: #{@score}"
+      end
     end
 end
 
@@ -121,33 +126,34 @@ snake = Snake.new
 game = Game.new
 
 update do
-    clear
-    unless game.finished?
-        snake.move
-    end
-    
-    snake.draw
-    game.draw
+  clear
 
-    if game.snake_hit_ball?(snake.x, snake.y)
-        game.record_hit
-        snake.grow
-    end
+  unless game.finished?
+    snake.move
+  end
 
-    if snake.hit_itself?
-        game.finish
-    end
+  snake.draw
+  game.draw
+
+  if game.snake_hit_ball?(snake.x, snake.y)
+    game.record_hit
+    snake.grow
+  end
+
+  if snake.hit_itself?
+    game.finish
+  end
 end
 
 
 on :key_down do |event|
-    if ['up', 'down', 'left', 'right'].include?(event.key)
-        if snake.can_change_direction_to?(event.key)
-        snake.direction = event.key
-        end
-    elsif event.key == 'r'
-        snake = Snake.new
-        game = Game.new
+  if ['up', 'down', 'left', 'right'].include?(event.key)
+    if snake.can_change_direction_to?(event.key)
+    snake.direction = event.key
     end
+  elsif event.key == 'r'
+    snake = Snake.new
+    game = Game.new
+  end
 end
 show
